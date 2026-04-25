@@ -25,7 +25,16 @@ export const getProject = asyncHandler(async (req, res, next) => {
 });
 
 export const createProject = asyncHandler(async (req, res) => {
-  const project = await Project.create(req.body);
+  const projectData = { ...req.body };
+
+  // If an image was uploaded via multer, construct the public URL
+  if (req.file) {
+    const host = req.get('host');
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    projectData.image = `${protocol}://${host}/uploads/${req.file.filename}`;
+  }
+
+  const project = await Project.create(projectData);
 
   res.status(201).json({
     status: 'success',

@@ -13,12 +13,21 @@ const Projects = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTech, setFilterTech] = useState('all');
 
+  const [error, setError] = useState(null);
+
   const fetchProjects = useCallback(async () => {
     try {
-      const { data } = await api.get('/projects');
-      setProjects(data.data || data);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
+      setLoading(true);
+      setError(null);
+      const res = await api.get('/projects');
+      console.log('API RESPONSE:', res.data);
+      const projectsData = res.data?.data || res.data || [];
+      setProjects(projectsData);
+
+      console.log('PROJECTS DATA:', projectsData);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Failed to load projects. Please try again.');
     } finally {
       setLoading(false);
     }

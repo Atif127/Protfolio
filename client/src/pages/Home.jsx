@@ -5,6 +5,7 @@ import ContactForm from '../components/ContactForm.jsx';
 import SEO from '../components/SEO.jsx';
 import AnimatedSection from '../components/AnimatedSection.jsx';
 import Loader from '../components/Loader.jsx';
+import PortfolioProfile from '../assets/protfolioProfile.jpeg';
 import {
   FiGithub,
   FiLinkedin,
@@ -17,13 +18,18 @@ import api from '../services/api.js';
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchProjects = useCallback(async () => {
     try {
+      setLoading(true);
+      setError(null);
       const { data } = await api.get('/projects?limit=6');
-      setProjects(data.data || data);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
+      const projectsData = data?.data || data || [];
+      setProjects(projectsData);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Failed to load projects. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -51,6 +57,21 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             className="text-center max-w-4xl mx-auto"
           >
+            {/* Profile Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.6 }}
+              className="mb-8 flex justify-center"
+            >
+              <img
+                src={PortfolioProfile}
+                alt="Atif Ali"
+                className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-blue-500 shadow-xl mx-auto md:w-52 md:h-52 lg:w-64 lg:h-64 xl:w-72 xl:h-72  "
+              />
+            </motion.div>
+
+            {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -58,15 +79,15 @@ const Home = () => {
               className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-full px-4 py-2 text-sm font-medium mb-8"
             >
               <FiCode className="w-4 h-4" />
-              Available for freelance work
+              Available for Full Stack work
             </motion.div>
 
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-theme-primary leading-tight mb-6">
-              Building{' '}
+              Developing{' '}
               <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-                Digital Experiences
+                End-to-End MERN Applications
               </span>{' '}
-              That Matter
+              With Precision
             </h1>
 
             <p className="text-lg sm:text-xl text-theme-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -88,8 +109,11 @@ const Home = () => {
 
               <div className="flex items-center gap-4">
                 {[
-                  { href: 'https://github.com', icon: FiGithub },
-                  { href: 'https://linkedin.com', icon: FiLinkedin },
+                  { href: 'https://github.com/Atif127', icon: FiGithub },
+                  {
+                    href: 'https://www.linkedin.com/in/atif-ali-691481137?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+                    icon: FiLinkedin,
+                  },
                   { href: 'https://twitter.com', icon: FiTwitter },
                 ].map(({ href, icon: Icon }) => (
                   <motion.a
@@ -125,6 +149,16 @@ const Home = () => {
 
           {loading ? (
             <Loader />
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-red-400 text-lg">{error}</p>
+              <button
+                onClick={fetchProjects}
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {projects.map((project, index) => (

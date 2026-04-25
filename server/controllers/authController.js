@@ -36,11 +36,22 @@ export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email }).select('+password');
+
   if (!user || !(await user.comparePassword(password))) {
     return next(new ApiError(401, 'Invalid credentials'));
   }
 
-  createSendToken(user, 200, res);
+  const token = createSendToken(user, 200, res);
+
+  res.status(200).json({
+    status: "success",
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      role: user.role, // 👈 IMPORTANT
+    }
+  });
 });
 
 export const getMe = asyncHandler(async (req, res) => {
